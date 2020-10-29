@@ -3,6 +3,7 @@ from django.db import connection
 import re
 
 
+
 def is_valid(l):
     for i in l:
         if i == '':
@@ -67,7 +68,9 @@ def register(response):
         if response.POST.get("Register"):
             first_name = response.POST.get("first_name")
             last_name = response.POST.get("last_name")
-            gender = response.POST.get("gender")
+            gender = ""
+            if response.POST.get("gender"):
+                gender = response.POST.get("gender")
             bday = response.POST.get("birthday")
             email = response.POST.get("email")
             phone = response.POST.get("phone")
