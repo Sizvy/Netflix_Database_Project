@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect
 from django.db import connection
 import re
 
+logged_in = False
 
 
 def is_valid(l):
@@ -109,6 +110,7 @@ def register(response):
                     error_msg = "Passwords do not match"
                 else:
                     push_into_db(l)
+                    logged_in = True
                     print("Successfully registered")
                     #redirect to login page
                     return redirect("http://127.0.0.1:8000/user/login/")
