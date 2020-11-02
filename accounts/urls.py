@@ -19,9 +19,10 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url(r'^register/' , views.register),
-    url(r'^login/' , views.login),
-    url(r'^/' , views.login),
+    url(r'^register/' , views.register, name = "register"),
+    url(r'^login/' , views.login, name = "login"),
+    url(r'^/' , views.login , name = "login"),
+    url(r'^reset_password/' , views.resetpass, name="reset_pass"),
 
 
 ]

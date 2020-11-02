@@ -19,7 +19,9 @@ from django.conf.urls import url
 from . import views
 
 urlpatterns = [
-    url('' , views.home),
+    path('' , views.home_notLoggedIn),
+    path('home/' , views.home_notLoggedIn, name="home_NotLoggedIn"),
+    path('home/<user_ID>/' , views.home_LoggedIn, name = "home_LoggedIn")
 
 
 
