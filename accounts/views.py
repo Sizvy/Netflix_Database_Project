@@ -1,8 +1,7 @@
 from django.shortcuts import render,redirect
 from django.db import connection
 import re
-
-logged_in = False
+from django.contrib.auth.models import User
 
 
 def is_valid(l):
@@ -58,6 +57,8 @@ def push_into_db(l):
     cursor.execute(sql, [ID, l[0], l[1], l[2], l[3], l[4], l[5], l[6], curr_date])
     connection.commit()
     cursor.close()
+    #user = User.objects.create_user(str(ID),l[4],l[6])
+    #user.save()
 
 
 def register(response):
@@ -112,6 +113,7 @@ def register(response):
                     push_into_db(l)
                     logged_in = True
                     print("Successfully registered")
+
                     #redirect to login page
                     return redirect("http://127.0.0.1:8000/user/login/")
 
@@ -140,10 +142,12 @@ def login(response):
             print(password)
 
             ok = False
+            user_ID = -1
             for r in result:
                 email_db = r[10]
                 password_db = r[4]
                 if email_db == email and password_db == password:
+                    user_ID = r[0]
                     ok = True
                     break
 
@@ -152,7 +156,60 @@ def login(response):
                 error_msg = "Wrong Email or Password. Try Again!"
             else:
                 print("successfully logged in")
+                print(user_ID)
                 #redirect to home page
+                return redirect("http://127.0.0.1:8000/home/"+str(user_ID)+"/")
 
 
     return render(response, 'accounts\loginForm.html',{"error_msg" : error_msg})
+
+
+def resetpass(response):
+
+    error_msg = ""
+    print("here")
+    if response.method == "POST":
+        print(response.POST)
+        if response.POST.get("login"):
+            email = response.POST.get("email")
+            newpassword = response.POST.get("new_password")
+            confpassword = response.POST.get("conf_new_password")
+
+            print(email)
+            print(newpassword)
+            print(confpassword)
+
+            cursor = connection.cursor()
+            sql = "SELECT * FROM USERS WHERE EMAIL = %s"
+            cursor.execute(sql, [email])
+            result = cursor.fetchall()
+            cursor.close()
+
+            ok = False
+            count = 0
+            for r in result:
+                count = count + 1
+
+            if count == 1:
+                ok = True
+
+            if ok == False:
+                print("Wrong email")
+                error_msg = "You don't have an account with this email"
+
+            elif len(newpassword) < 8:
+                print("Password should be at least 8 characters")
+                error_msg = "Password should be at least 8 characters"
+
+            elif newpassword != confpassword:
+                error_msg = "Passwords don't match"
+            else:
+                cursor = connection.cursor()
+                sql = "UPDATE USERS SET PASSWORD = %s WHERE EMAIL = %s"
+                cursor.execute(sql, [newpassword, email])
+                connection.commit()
+                cursor.close()
+                print("successfully changed your password")
+                return redirect("http://127.0.0.1:8000/user/login/")
+
+    return render(response, 'accounts\ResetPassword.html', {"error_msg": error_msg})
