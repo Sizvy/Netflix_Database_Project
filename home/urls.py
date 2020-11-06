@@ -21,7 +21,7 @@ from . import views
 urlpatterns = [
     path('' , views.home_notLoggedIn),
     path('home/' , views.home_notLoggedIn, name="home_NotLoggedIn"),
-    path('home/<user_ID>/' , views.home_LoggedIn, name = "home_LoggedIn")
+    path('home/logout/' , views.log_out, name="logout"),
 
 
 

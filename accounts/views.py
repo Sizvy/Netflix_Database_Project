@@ -74,6 +74,7 @@ def register(response):
                    'conf_password': ""
                    }
 
+
     if response.method == "POST":
         print(response.POST)
 
@@ -154,7 +155,11 @@ def login(request):
 
     error_msg = ""
 
-    if request.method == "POST":
+
+    if request.session.get('is_logged_in', False) == True:
+        return redirect("http://127.0.0.1:8000/home/")
+
+    elif request.method == "POST":
         print(request.POST)
         if request.POST.get("login"):
             email = request.POST.get("email")
@@ -179,12 +184,12 @@ def login(request):
                 print("successfully logged in")
                 print(user_ID)
 
-
                 request.session['is_logged_in'] = True
                 request.session['user_ID'] = str(user_ID)
                 request.session.set_expiry(0)
                 #redirect to home page
-                return redirect("http://127.0.0.1:8000/home/"+str(user_ID)+"/")
+                #return redirect("http://127.0.0.1:8000/home/"+str(user_ID)+"/")
+                return redirect("http://127.0.0.1:8000/home/")
 
 
     return render(request, 'accounts\loginForm.html',{"error_msg" : error_msg})
