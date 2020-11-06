@@ -31,8 +31,6 @@ def home_LoggedIn(request,user_ID):
         return redirect("http://127.0.0.1:8000/user/login/")
 
 def log_out(request):
-    print("here")
-
     if request.session.get('is_logged_in',False) == True:
         try:
             del request.session['user_ID']
