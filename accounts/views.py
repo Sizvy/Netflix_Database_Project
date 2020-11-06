@@ -64,6 +64,16 @@ def push_into_db(l):
 def register(response):
     error_msg = ""
 
+    form_values = {'first_name': "",
+                   'last_name': "",
+                   'gender': "",
+                   'bday': "",
+                   'email': "",
+                   'phone': "",
+                   'password': "",
+                   'conf_password': ""
+                   }
+
     if response.method == "POST":
         print(response.POST)
 
@@ -88,6 +98,18 @@ def register(response):
             l.append(phone)
             l.append(password)
             l.append(conf_password)
+
+            form_values = {'first_name' : first_name,
+                           'last_name' : last_name,
+                           'gender' : gender,
+                           'bday' : bday,
+                           'email' : email,
+                           'phone' : phone,
+                           'password' : password,
+                           'conf_password':conf_password
+                           }
+
+            print(form_values['first_name'])
             print(l)
 
 
@@ -113,17 +135,16 @@ def register(response):
                     push_into_db(l)
                     logged_in = True
                     print("Successfully registered")
-
                     #redirect to login page
                     return redirect("http://127.0.0.1:8000/user/login/")
 
 
-    return render(response, 'accounts\RegisterForm.html',{"error_msg":error_msg})
+    return render(response, 'accounts\RegisterForm.html',{"error_msg":error_msg , "form_values": form_values})
 
 
 
 
-def login(response):
+def login(request):
 
     cursor = connection.cursor()
     sql = "SELECT * FROM USERS"
@@ -133,11 +154,11 @@ def login(response):
 
     error_msg = ""
 
-    if response.method == "POST":
-        print(response.POST)
-        if response.POST.get("login"):
-            email = response.POST.get("email")
-            password = response.POST.get("password")
+    if request.method == "POST":
+        print(request.POST)
+        if request.POST.get("login"):
+            email = request.POST.get("email")
+            password = request.POST.get("password")
             print(email)
             print(password)
 
@@ -157,11 +178,16 @@ def login(response):
             else:
                 print("successfully logged in")
                 print(user_ID)
+
+
+                request.session['is_logged_in'] = True
+                request.session['user_ID'] = str(user_ID)
+                request.session.set_expiry(0)
                 #redirect to home page
                 return redirect("http://127.0.0.1:8000/home/"+str(user_ID)+"/")
 
 
-    return render(response, 'accounts\loginForm.html',{"error_msg" : error_msg})
+    return render(request, 'accounts\loginForm.html',{"error_msg" : error_msg})
 
 
 def resetpass(response):

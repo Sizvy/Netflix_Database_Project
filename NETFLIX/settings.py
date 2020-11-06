@@ -74,6 +74,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'NETFLIX.wsgi.application'
 
+#session 
+SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
+SESSION_COOKIE_HTTPONLY = True
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
