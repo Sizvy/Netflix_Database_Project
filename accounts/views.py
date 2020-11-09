@@ -2,6 +2,8 @@ from django.shortcuts import render,redirect
 from django.db import connection
 import re
 from django.contrib.auth.models import User
+from passlib.hash import pbkdf2_sha256
+
 
 
 def is_valid(l):
@@ -32,6 +34,7 @@ def is_already_taken(e):
 
 def push_into_db(l):
 
+    #generate user id
     cursor = connection.cursor()
     sql_ID = "SELECT NVL(MAX(USER_ID),0) FROM USERS"
     cursor.execute(sql_ID)
@@ -43,6 +46,7 @@ def push_into_db(l):
     print(ID)
 
 
+    #current date
     cursor = connection.cursor()
     curr_date_sql = "SELECT TO_CHAR(SYSDATE, 'YYYY-MM-DD') FROM dual"
     curr_date_list = cursor.execute(curr_date_sql)
@@ -51,10 +55,13 @@ def push_into_db(l):
     print(curr_date)
     cursor.close()
 
+    #encrypt password
+    encrypted_password = pbkdf2_sha256.encrypt(l[6], rounds=12000, salt_size=32)
 
+    #insert into database
     cursor = connection.cursor()
     sql = "INSERT INTO USERS(USER_ID,USER_FIRSTNAME, USER_LASTNAME, GENDER, DATE_OF_BIRTH, EMAIL, PHONE_NO, PASSWORD, JOIN_DATE) VALUES(%s, %s, %s, %s, TO_DATE(%s,'DD/MM/YYYY'), %s, %s, %s, %s)"
-    cursor.execute(sql, [ID, l[0], l[1], l[2], l[3], l[4], l[5], l[6], curr_date])
+    cursor.execute(sql, [ID, l[0], l[1], l[2], l[3], l[4], l[5], encrypted_password, curr_date])
     connection.commit()
     cursor.close()
     #user = User.objects.create_user(str(ID),l[4],l[6])
@@ -172,7 +179,7 @@ def login(request):
             for r in result:
                 email_db = r[10]
                 password_db = r[4]
-                if email_db == email and password_db == password:
+                if email_db == email and pbkdf2_sha256.verify(password,password_db):
                     user_ID = r[0]
                     ok = True
                     break
@@ -236,8 +243,9 @@ def resetpass(response):
                 error_msg = "Passwords don't match"
             else:
                 cursor = connection.cursor()
+                encrypted_password = pbkdf2_sha256.encrypt(newpassword, rounds=12000, salt_size=32)
                 sql = "UPDATE USERS SET PASSWORD = %s WHERE EMAIL = %s"
-                cursor.execute(sql, [newpassword, email])
+                cursor.execute(sql, [encrypted_password, email])
                 connection.commit()
                 cursor.close()
                 print("successfully changed your password")
