@@ -22,6 +22,7 @@ urlpatterns = [
     path('' , views.home_notLoggedIn),
     path('home/' , views.home_notLoggedIn, name="home_NotLoggedIn"),
     path('home/logout/' , views.log_out, name="logout"),
+    path('search/',views.search,name="search"),
 
 
 

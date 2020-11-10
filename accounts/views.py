@@ -167,7 +167,7 @@ def login(request):
         return redirect("http://127.0.0.1:8000/home/")
 
     elif request.method == "POST":
-        print(request.POST)
+        #print(request.POST)
         if request.POST.get("login"):
             email = request.POST.get("email")
             password = request.POST.get("password")
