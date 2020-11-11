@@ -252,3 +252,8 @@ def resetpass(response):
                 return redirect("http://127.0.0.1:8000/user/login/")
 
     return render(response, 'accounts\ResetPassword.html', {"error_msg": error_msg})
+
+
+
+def contact(request):
+    return render(request, 'accounts\contact.html')
