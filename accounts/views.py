@@ -171,8 +171,7 @@ def login(request):
         if request.POST.get("login"):
             email = request.POST.get("email")
             password = request.POST.get("password")
-            print(email)
-            print(password)
+
 
             ok = False
             user_ID = -1
