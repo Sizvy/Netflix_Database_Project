@@ -159,6 +159,7 @@ def home_notLoggedIn(response):
                     print("here")
 
                     for r_temp in show_res:
+                        #show_id = r_temp[0]
                         show_title = r_temp[2]
                         show_genre = r_temp[1]
                         show_des = r_temp[3]
@@ -166,7 +167,9 @@ def home_notLoggedIn(response):
                         show_lang = r_temp[8]
                         show_image = r_temp[13]
                         show_imdb = r_temp[5]
-                        single_row = {"show_imdb": show_imdb,
+                        single_row = {
+                                      "show_id": show_id,
+                                      "show_imdb": show_imdb,
                                       "show_title": show_title,
                                       "show_genre": show_genre,
                                       "show_des": show_des,
@@ -194,11 +197,12 @@ def home_notLoggedIn(response):
             cnt = 0
             for r in result_show:
                 cnt = cnt+1
+                show_id = r[0]
                 show_title = r[2]
                 show_genre = r[1]
                 show_imdb = r[5]
                 show_image = r[13]
-                single_row = {"show_title": show_title, "show_genre": show_genre, "show_imdb": show_imdb,
+                single_row = {"show_id": show_id, "show_title": show_title, "show_genre": show_genre, "show_imdb": show_imdb,
                               "show_image": show_image}
                 show_list.append(single_row)
             no_of_results = str(cnt)
@@ -456,6 +460,8 @@ def shows(response, show_type):
                         show_image = r_temp[3]
                         series_id = r_temp[0]
 
+                        series_identifier = str(series_id) + "_" + str(season_no)
+
                         cursor = connection.cursor()
                         sql = "SELECT AVG(s.IMDB_RATING) FROM SHOW s,Series se" \
                               " Where s.SERIES_ID = %s and s.SEASON_NO = %s "
@@ -467,8 +473,8 @@ def shows(response, show_type):
                         for r in res:
                             imdb_rating = round(r[0], 2)
 
-                        single_row = {"show_title": show_title, "show_genre": season_no, "show_imdb": imdb_rating,
-                                      "show_image": show_image}
+                        single_row = {"show_id": series_id, "show_title": show_title, "show_genre": season_no, "show_imdb": imdb_rating,
+                                      "show_image": show_image, "series_identifier": series_identifier}
                         show_list.append(single_row)
                         error_msg = ""
                 no_of_results = str(cnt)
@@ -505,6 +511,7 @@ def shows(response, show_type):
 
                 series_id = r[0]
 
+                series_identifier = str(series_id)+"_"+str(season_no)
                 cursor = connection.cursor()
                 sql = "SELECT AVG(s.IMDB_RATING) FROM SHOW s,Series se" \
                       " Where s.SERIES_ID = %s and s.SEASON_NO = %s "
@@ -516,8 +523,8 @@ def shows(response, show_type):
                 for r in res:
                     imdb_rating = round(r[0], 2)
 
-                single_row = {"show_title": show_title, "show_genre": season_no, "show_imdb": imdb_rating,
-                              "show_image": show_image}
+                single_row = {"series_id": series_id, "show_title": show_title, "season_no": season_no, "show_imdb": imdb_rating,
+                              "show_image": show_image, "series_identifier": series_identifier}
                 show_list.append(single_row)
                 error_msg = ""
 
@@ -690,7 +697,9 @@ def movies(response):
                         show_lang = r_temp[8]
                         show_image = r_temp[13]
                         show_imdb = r_temp[5]
-                        single_row = {"show_imdb": show_imdb,
+                        single_row = {
+                                      "show_id": show_id,
+                                      "show_imdb": show_imdb,
                                       "show_title": show_title,
                                       "show_genre": show_genre,
                                       "show_des": show_des,
@@ -711,11 +720,12 @@ def movies(response):
             cnt = 0
             for r in result_show:
                 cnt = cnt + 1
+                show_id = r[0]
                 show_title = r[2]
                 show_genre = r[1]
                 show_imdb = r[5]
                 show_image = r[13]
-                single_row = {"show_title": show_title, "show_genre": show_genre, "show_imdb": show_imdb,
+                single_row = {"show_id": show_id, "show_title": show_title, "show_genre": show_genre, "show_imdb": show_imdb,
                               "show_image": show_image}
                 show_list.append(single_row)
             no_of_results = str(cnt)
@@ -730,6 +740,171 @@ def movies(response):
 
 
 
+def single_show(response,show_id):
+    if response.session.get('is_logged_in', False) == True:
 
+        cursor = connection.cursor()
+        sql = "SELECT * FROM SHOW WHERE SHOW_ID = %s"
+        cursor.execute(sql, [show_id])
+        result = cursor.fetchall()
+        cursor.close()
+
+        show_list = []
+        for r_temp in result:
+            show_title = r_temp[2]
+            show_genre = r_temp[1]
+            show_des = r_temp[3]
+            show_age = r_temp[4]
+            show_lang = r_temp[8]
+            show_image = r_temp[13]
+            show_imdb = r_temp[5]
+            show_year = r_temp[14]
+            show_user_rating = r_temp[6]
+            director_id = r_temp[10]
+            show_age_limit = r_temp[4]
+            company_id = r_temp[9]
+
+            # director information
+            cursor = connection.cursor()
+            sql = "SELECT * FROM DIRECTOR d WHERE d.PERSON_ID = %s"
+            cursor.execute(sql, [director_id])
+            result_dir = cursor.fetchall()
+            cursor.close()
+
+
+            dir_first_name = ""
+            dir_last_name = ""
+            dir_wiki_link = ""
+            for r_dir in result_dir:
+                dir_first_name = r_dir[1]
+                dir_last_name = r_dir[2]
+                dir_wiki_link = r_dir[4]
+
+            dir_name = dir_first_name + " " + dir_last_name
+
+
+
+            #actor_information
+            cursor = connection.cursor()
+            sql = "SELECT a.ACTOR_FIRST_NAME,a.ACTOR_LAST_NAME,a.WIKI_LINK,a.PHOTO FROM ACTOR a,ACT ac,SHOW s" \
+                  " WHERE a.PERSON_ID = ac.ACTOR_IDACT AND" \
+                  " ac.SHOW_IDACT = s.SHOW_ID AND" \
+                  " s.SHOW_ID = %s"
+            cursor.execute(sql, [show_id])
+            result_act = cursor.fetchall()
+            cursor.close()
+
+            actor_list = []
+            for r_act in result_act:
+                actor_name = r_act[0]+" "+r_act[1]
+                single_act_row = {"actor_name": actor_name, "actor_link": r_act[2], "actor_photo": r_act[3]}
+                actor_list.append(single_act_row)
+
+
+            #production_company
+
+            cursor = connection.cursor()
+            sql = "SELECT p.COMPANY_NAME,p.LOGO FROM PRODUCTION_COMPANY p WHERE p.COMPANY_ID = %s"
+            cursor.execute(sql, [company_id])
+            result_comp = cursor.fetchall()
+            cursor.close()
+
+            for r_comp in result_comp:
+                company_name = r_comp[0]
+                company_logo = r_comp[1]
+
+
+
+
+            single_row = {"show_imdb": show_imdb,
+                          "show_title": show_title,
+                          "show_genre": show_genre,
+                          "show_des": show_des,
+                          "show_age": show_age,
+                          "show_lang": show_lang,
+                          "show_image": show_image,
+                          "show_year": show_year,
+                          "show_age_limit": show_age_limit,
+                          "show_user_rating": show_user_rating,
+                          "director_name": dir_name,
+                          "director_link": dir_wiki_link,
+                          "actor_list": actor_list,
+                          "company_name": company_name,
+                          "company_logo": company_logo}
+            show_list.append(single_row)
+            print("cl: "+company_logo)
+
+        return render(response,'home\single_show.html',{"shows": show_list})
+
+    else:
+        return redirect("http://127.0.0.1:8000/user/login")
+
+
+
+def single_series(response, series_identifier):
+    if response.session.get('is_logged_in', False) == True:
+        print("here")
+        series_identifier = series_identifier.split("_")
+        series_id = series_identifier[0]
+        season_no = series_identifier[1]
+
+        cursor = connection.cursor()
+        sql = "SELECT * FROM SERIES se WHERE se.SERIES_ID = %s AND se.SEASON_NO = %s"
+        cursor.execute(sql,[series_id,season_no])
+        result = cursor.fetchall()
+        cursor.close()
+
+
+        title=""
+        category=""
+        start_year=""
+        end_year=""
+        status=""
+        cover_image=""
+        for r in result:
+            category = r[2]
+            start_year = r[3]
+            end_year = r[4]
+            status = r[5]
+            title = r[6]
+            cover_image = r[7]
+
+        cursor = connection.cursor()
+        sql = "SELECT s.SHOW_ID,s.GENRE,s.TITLE,s.LANGUAGE,s.YEAR,s.IMDB_RATING,s.USER_RATING FROM SHOW s WHERE s.SERIES_ID = %s AND s.SEASON_NO = %s"
+        cursor.execute(sql, [series_id, season_no])
+        result = cursor.fetchall()
+        cursor.close()
+
+        show_list = []
+
+        tot_imdb = 0
+        tot_user = 0
+        cnt = 0
+        language=""
+        genre=""
+        for r in result:
+            language = r[3]
+            genre = r[1]
+            show_single_row = {"episode_id": r[0], "episode_title": r[2], "episode_year": r[4], "episode_number": cnt+1}
+            show_list.append(show_single_row)
+            tot_imdb += r[5]
+            tot_user += r[6]
+            cnt += 1
+
+        imdb_rating = round(tot_imdb/cnt, 2)
+        user_rating = round(tot_user / cnt, 2)
+
+        series = {"series_id":series_id,"season_no":season_no, "title": title, "category":category,
+                  "start_year": start_year, "end_year": end_year, "cover_image": cover_image, "status": status,
+                  "imdb_rating": imdb_rating, "user_rating": user_rating, "language": language, "genre": genre,
+                  "episode_list": show_list}
+        print(series)
+
+        return render(response, 'home\series_view.html', {"series": series})
+
+
+
+    else:
+        return redirect("http://127.0.0.1:8000/user/login")
 
 
