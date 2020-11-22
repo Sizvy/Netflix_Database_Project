@@ -265,6 +265,7 @@ def genre(response, genre_name):
         cnt = 0
         for r_temp in result:
             cnt = cnt+1
+            show_id = r_temp[0]
             show_title = r_temp[2]
             show_genre = r_temp[1]
             show_des = r_temp[3]
@@ -272,13 +273,14 @@ def genre(response, genre_name):
             show_lang = r_temp[8]
             show_image = r_temp[13]
             show_imdb = r_temp[5]
-            single_row = {"show_imdb": show_imdb,
-                            "show_title": show_title,
-                          "show_genre": show_genre,
-                          "show_des": show_des,
-                          "show_age": show_age,
-                            "show_lang": show_lang,
-                          "show_image": show_image}
+            single_row = {"show_id": show_id,
+                        "show_imdb": show_imdb,
+                        "show_title": show_title,
+                        "show_genre": show_genre,
+                        "show_des": show_des,
+                        "show_age": show_age,
+                        "show_lang": show_lang,
+                        "show_image": show_image}
             show_list.append(single_row)
             error_msg = ""
 
