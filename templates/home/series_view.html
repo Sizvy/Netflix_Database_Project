@@ -38,11 +38,19 @@
 				<div class="movie-img sticky-sb">
 					<img src={{ series.cover_image }} , width = 400px, height=1000px>
 					<div class="movie-btn">
+                        {% if series.is_subscribed == 0 %}
+                            <div class="btn-transform transform-vertical">
 
-						<div class="btn-transform transform-vertical">
-							<div><a href="#" class="item item-1 yellowbtn"> <i class="ion-card"></i> Subscribe</a></div>
-							<div><a href="#" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
-						</div>
+                                <div><a href="http://127.0.0.1:8000/subscribe/series_{{ series.series_id }}_{{ series.season_no }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> Subscribe</a></div>
+                                <div><a href="http://127.0.0.1:8000/subscribe/series_{{ series.series_id }}_{{ series.season_no }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
+                            </div>
+                        {% elif series.is_subscribed == 1 %}
+                             <div class="btn-transform transform-vertical">
+                                <div><a href="http://127.0.0.1:8000/unsubscribe/series_{{ series.series_id }}_{{ series.season_no }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> Unsubscribe</a></div>
+                                <div><a href="http://127.0.0.1:8000/unsubscribe/series_{{ series.series_id }}_{{ series.season_no }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
+                            </div>
+                        {% endif %}
+
 					</div>
 				</div>
 			</div>
@@ -779,7 +787,7 @@
     padding-top: 200px;
 }
 </style>
-<script src="../../static/home/home_page/js/production.min.js"></script>
+
 
 
 
