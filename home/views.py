@@ -1073,6 +1073,8 @@ def subscribe_show(response,show_identifier):
 
                     if card_number == "" or exp_date == "" or username == "" or password == "":
                         error_msg = "No field can be left empty"
+                    elif card_number.isnumeric() == False:
+                        error_msg = "Invalid Card Number"
                     else:
                         cursor = connection.cursor()
                         sql = "SELECT * FROM CARD c" \
@@ -1086,6 +1088,8 @@ def subscribe_show(response,show_identifier):
 
                         cnt = 0
                         balance = 0
+
+
                         for r in result:
                             balance = r[4]
                             cnt += 1
