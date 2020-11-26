@@ -9,6 +9,7 @@
 
     <link rel="stylesheet" href="../../static/home/single_show/css/plugins.css">
 	<link rel="stylesheet" href="../../static/home/single_show/css/style.css">
+    <script src="../../static/home/single_show/js/main.js" defer></script>
 
 
 {% endblock %}
@@ -82,13 +83,15 @@
 								<span class="rv">56 Reviews</span>
 							</p>
 						</div>
-						<div class="rate-star">
-							<p>Rate This Movie:  </p>
-							<i class="ion-ios-star"></i>
-							<i class="ion-ios-star"></i>
-							<i class="ion-ios-star"></i>
-							<i class="ion-ios-star"></i>
-							<i class="ion-ios-star-outline"></i>
+						<div class="col text-center">
+							<form class="rate-form" method="POST">
+								{% csrf_token %}
+								<button name="star1" type="submit" class="fa fa-star fa-3x rating-btn" id="first" value="clicked"></button>
+								<button name="star2" type="submit" class="fa fa-star fa-3x rating-btn" id="second" value="clicked"></button>
+								<button name="star3" type="submit" class="fa fa-star fa-3x rating-btn" id="third" value="clicked"></button>
+								<button name="star4" type="submit" class="fa fa-star fa-3x rating-btn" id="fourth" value="clicked"></button>
+								<button name="star5" type="submit" class="fa fa-star fa-3x rating-btn" id="fifth" value="clicked"></button>
+							</form>
 						</div>
 					</div>
 					<div class="movie-tabs">
@@ -796,6 +799,15 @@
 <style>
 .gap{
     padding-top: 200px;
+}
+
+.checked {
+    color: goldenrod;
+}
+
+.rating-btn {
+    background-color: inherit !important;
+    border: 0 !important;
 }
 </style>
 

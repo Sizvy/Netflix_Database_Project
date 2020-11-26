@@ -744,6 +744,83 @@ def movies(response):
 
 def single_show(response,show_id):
     if response.session.get('is_logged_in', False) == True:
+        ok = False
+        rate = 0
+        if response.method == "POST":
+            print("here")
+            print(response.POST)
+            if response.POST.get("rating") == "1":
+                ok = True
+                rate = 1
+            elif response.POST.get("rating") == "2":
+                ok = True
+                rate = 2
+            elif response.POST.get("rating") == "3":
+                ok = True
+                rate = 3
+            elif response.POST.get("rating") == "4":
+                ok = True
+                rate = 4
+            elif response.POST.get("rating") == "5":
+                ok = True
+                rate = 5
+
+
+
+            if ok:
+                print("rating" + str(rate))
+                feedback = "Nothing"
+
+                user_id = response.session.get('user_ID')
+                print(user_id)
+                cursor = connection.cursor()
+                sql = "SELECT * FROM RATED WHERE USER_IDRATE = %s AND SHOW_IDRATE = %s"
+                cursor.execute(sql, [user_id, show_id])
+                result = cursor.fetchall()
+                cursor.close()
+
+                cnt = 0
+                prev_rate = 0
+                for r in result:
+                    prev_rate = r[3]
+                    cnt += 1
+                print(prev_rate)
+
+                if cnt == 0:
+                    cursor = connection.cursor()
+                    sql = "INSERT INTO RATED VALUES(%s,%s,%s,%s)"
+                    cursor.execute(sql, [user_id, show_id, feedback, rate])
+                    cursor.close()
+                else:
+                    cursor = connection.cursor()
+                    sql = "UPDATE RATED SET RATING_OUT_OF_FIVE = %s" \
+                          " WHERE USER_IDRATE = %s AND SHOW_IDRATE = %s"
+                    cursor.execute(sql, [rate, user_id, show_id])
+                    cursor.close()
+
+                    cursor = connection.cursor()
+                    sql = "SELECT COUNT(*) FROM RATED where SHOW_IDRATE = %s"
+                    cursor.execute(sql, [show_id])
+                    result_row_cnt = cursor.fetchall()
+                    tot_cnt = 0
+                    for r in result_row_cnt:
+                        tot_cnt = r[0]
+
+                    print(tot_cnt)
+                    cursor.close()
+
+
+                    cursor = connection.cursor()
+                    sql = "UPDATE SHOW SET USER_RATING = greatest(((USER_RATING*%s - %s + %s)/%s),5)" \
+                          " WHERE SHOW_ID = %s"
+                    cursor.execute(sql, [tot_cnt, prev_rate, rate, tot_cnt, show_id])
+                    cursor.close()
+
+                return redirect("http://127.0.0.1:8000/movies/" + show_id + "/")
+
+
+
+
 
         cursor = connection.cursor()
         sql = "SELECT * FROM SHOW WHERE SHOW_ID = %s"
