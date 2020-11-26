@@ -1187,3 +1187,81 @@ def subscribe_show(response,show_identifier):
 
     else:
         return redirect("http://127.0.0.1:8000/user/login")
+
+
+
+
+def pushintoDBsettings(l,user_id,change):
+    #encrypt password
+    if change == 1:
+        encrypted_password = pbkdf2_sha256.encrypt(l[4], rounds=12000, salt_size=32)
+    else:
+        encrypted_password = l[4]
+
+    cursor = connection.cursor()
+    sql = "UPDATE USERS SET USER_FIRSTNAME = %s, USER_LASTNAME = %s, PASSWORD = %s, PHONE_NO = %s, FAVOURITE_GENRE = %s WHERE USER_ID = %s"
+    cursor.execute(sql, [l[0],l[1],encrypted_password,l[2],l[3], user_id])
+    connection.commit()
+
+def settings(response):
+    error_msg = ""
+    user_id = -1
+    if response.session.get('is_logged_in', False) == True:
+        user_id = response.session.get('user_ID', -1)
+    if response.POST.get("update"):
+        first_name = response.POST.get("fname")
+        last_name = response.POST.get("lname")
+        phone = response.POST.get("phone")
+        fav_gen = response.POST.get("fgenre")
+        password = response.POST.get("password")
+        confpass = response.POST.get("confpass")
+
+        cursor = connection.cursor()
+        sql_show = "SELECT * FROM USERS WHERE USER_ID = %s"
+        cursor.execute(sql_show, [user_id])
+        result = cursor.fetchall()
+        for r in result:
+            f_name_db = r[2]
+            l_name_db = r[3]
+            pass_db = r[4]
+            phone_db = r[6]
+            genre_db = r[8]
+        cursor.close()
+
+        l = []
+        if first_name == "":
+            l.append(f_name_db)
+        else:
+            l.append(first_name)
+
+        if last_name == "":
+            l.append(l_name_db)
+        else:
+            l.append(last_name)
+
+        if phone == "":
+            l.append(phone_db)
+        else:
+            l.append(phone)
+
+        if fav_gen == "":
+            l.append(genre_db)
+        else:
+            l.append(fav_gen)
+
+        if password == "":
+            change = 0
+            l.append(pass_db)
+        else:
+            change = 1
+            l.append(password)
+        print(l)
+
+        if len(password) < 8 and password != "":
+            error_msg = "Password should be at least 8 characters"
+        elif password != "" and password != confpass:
+            error_msg = "Passwords do not match"
+        else:
+            pushintoDBsettings(l, user_id, change)
+            return redirect("http://127.0.0.1:8000/home/")
+    return render(response, 'home\settings.html', {"error_msg": error_msg})
