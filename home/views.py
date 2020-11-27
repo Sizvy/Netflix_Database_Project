@@ -768,6 +768,7 @@ def single_show(response,show_id):
 
 
             if ok:
+                connection.autocommit = True
                 print("rating" + str(rate))
                 feedback = "Nothing"
 
@@ -811,12 +812,12 @@ def single_show(response,show_id):
 
 
                     cursor = connection.cursor()
-                    sql = "UPDATE SHOW SET USER_RATING = greatest(((USER_RATING*%s - %s + %s)/%s),5)" \
+                    sql = "UPDATE SHOW SET USER_RATING = least(((USER_RATING*%s - %s + %s)/%s),5)" \
                           " WHERE SHOW_ID = %s"
                     cursor.execute(sql, [tot_cnt, prev_rate, rate, tot_cnt, show_id])
                     cursor.close()
 
-                return redirect("http://127.0.0.1:8000/movies/" + show_id + "/")
+                #return redirect("http://127.0.0.1:8000/movies/" + show_id + "/")
 
 
 
