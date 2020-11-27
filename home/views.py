@@ -749,77 +749,89 @@ def single_show(response,show_id):
         if response.method == "POST":
             print("here")
             print(response.POST)
-            if response.POST.get("rating") == "1":
-                ok = True
-                rate = 1
-            elif response.POST.get("rating") == "2":
-                ok = True
-                rate = 2
-            elif response.POST.get("rating") == "3":
-                ok = True
-                rate = 3
-            elif response.POST.get("rating") == "4":
-                ok = True
-                rate = 4
-            elif response.POST.get("rating") == "5":
-                ok = True
-                rate = 5
 
 
-
-            if ok:
+            if response.POST.get("review_btn"):
+                print("success")
+                review = response.POST.get("review")
                 connection.autocommit = True
-                print("rating" + str(rate))
-                feedback = "Nothing"
 
                 user_id = response.session.get('user_ID')
                 print(user_id)
                 cursor = connection.cursor()
-                sql = "SELECT * FROM RATED WHERE USER_IDRATE = %s AND SHOW_IDRATE = %s"
-                cursor.execute(sql, [user_id, show_id])
-                result = cursor.fetchall()
+                sql = "UPDATE RATED SET FEEDBACK = %s WHERE SHOW_IDRATE = %s AND USER_IDRATE = %s"
+                cursor.execute(sql, [review, show_id, user_id])
                 cursor.close()
 
-                cnt = 0
-                prev_rate = 0
-                for r in result:
-                    prev_rate = r[3]
-                    cnt += 1
-                print(prev_rate)
 
-                if cnt == 0:
+
+            if response.POST.get("rating"):
+                if response.POST.get("rating") == "1":
+                    ok = True
+                    rate = 1
+                elif response.POST.get("rating") == "2":
+                    ok = True
+                    rate = 2
+                elif response.POST.get("rating") == "3":
+                    ok = True
+                    rate = 3
+                elif response.POST.get("rating") == "4":
+                    ok = True
+                    rate = 4
+                elif response.POST.get("rating") == "5":
+                    ok = True
+                    rate = 5
+
+
+                if ok:
+                    connection.autocommit = True
+                    print("rating" + str(rate))
+                    feedback = "Nothing"
+
+                    user_id = response.session.get('user_ID')
+                    print(user_id)
                     cursor = connection.cursor()
-                    sql = "INSERT INTO RATED VALUES(%s,%s,%s,%s)"
-                    cursor.execute(sql, [user_id, show_id, feedback, rate])
-                    cursor.close()
-                else:
-                    cursor = connection.cursor()
-                    sql = "UPDATE RATED SET RATING_OUT_OF_FIVE = %s" \
-                          " WHERE USER_IDRATE = %s AND SHOW_IDRATE = %s"
-                    cursor.execute(sql, [rate, user_id, show_id])
-                    cursor.close()
-
-                    cursor = connection.cursor()
-                    sql = "SELECT COUNT(*) FROM RATED where SHOW_IDRATE = %s"
-                    cursor.execute(sql, [show_id])
-                    result_row_cnt = cursor.fetchall()
-                    tot_cnt = 0
-                    for r in result_row_cnt:
-                        tot_cnt = r[0]
-
-                    print(tot_cnt)
-                    cursor.close()
-
-
-                    cursor = connection.cursor()
-                    sql = "UPDATE SHOW SET USER_RATING = least(((USER_RATING*%s - %s + %s)/%s),5)" \
-                          " WHERE SHOW_ID = %s"
-                    cursor.execute(sql, [tot_cnt, prev_rate, rate, tot_cnt, show_id])
+                    sql = "SELECT * FROM RATED WHERE USER_IDRATE = %s AND SHOW_IDRATE = %s"
+                    cursor.execute(sql, [user_id, show_id])
+                    result = cursor.fetchall()
                     cursor.close()
 
-                #return redirect("http://127.0.0.1:8000/movies/" + show_id + "/")
+                    cnt = 0
+                    prev_rate = 0
+                    for r in result:
+                        prev_rate = r[3]
+                        cnt += 1
+                    print(prev_rate)
+
+                    if cnt == 0:
+                        cursor = connection.cursor()
+                        sql = "INSERT INTO RATED VALUES(%s,%s,%s,%s)"
+                        cursor.execute(sql, [user_id, show_id, feedback, rate])
+                        cursor.close()
+                    else:
+                        cursor = connection.cursor()
+                        sql = "UPDATE RATED SET RATING_OUT_OF_FIVE = %s" \
+                              " WHERE USER_IDRATE = %s AND SHOW_IDRATE = %s"
+                        cursor.execute(sql, [rate, user_id, show_id])
+                        cursor.close()
+
+                        cursor = connection.cursor()
+                        sql = "SELECT COUNT(*) FROM RATED where SHOW_IDRATE = %s"
+                        cursor.execute(sql, [show_id])
+                        result_row_cnt = cursor.fetchall()
+                        tot_cnt = 0
+                        for r in result_row_cnt:
+                            tot_cnt = r[0]
+
+                        print(tot_cnt)
+                        cursor.close()
 
 
+                        cursor = connection.cursor()
+                        sql = "UPDATE SHOW SET USER_RATING = least(((USER_RATING*%s - %s + %s)/%s),5)" \
+                              " WHERE SHOW_ID = %s"
+                        cursor.execute(sql, [tot_cnt, prev_rate, rate, tot_cnt, show_id])
+                        cursor.close()
 
 
 
@@ -1282,68 +1294,69 @@ def pushintoDBsettings(l,user_id,change):
 
     cursor = connection.cursor()
     sql = "UPDATE USERS SET USER_FIRSTNAME = %s, USER_LASTNAME = %s, PASSWORD = %s, PHONE_NO = %s, FAVOURITE_GENRE = %s WHERE USER_ID = %s"
-    cursor.execute(sql, [l[0],l[1],encrypted_password,l[2],l[3], user_id])
+    cursor.execute(sql, [l[0], l[1], encrypted_password, l[2], l[3], user_id])
     connection.commit()
+    cursor.close()
 
 def settings(response):
     error_msg = ""
     user_id = -1
     if response.session.get('is_logged_in', False) == True:
         user_id = response.session.get('user_ID', -1)
-    if response.POST.get("update"):
-        first_name = response.POST.get("fname")
-        last_name = response.POST.get("lname")
-        phone = response.POST.get("phone")
-        fav_gen = response.POST.get("fgenre")
-        password = response.POST.get("password")
-        confpass = response.POST.get("confpass")
+        if response.POST.get("update"):
+            first_name = response.POST.get("fname")
+            last_name = response.POST.get("lname")
+            phone = response.POST.get("phone")
+            fav_gen = response.POST.get("fgenre")
+            password = response.POST.get("password")
+            confpass = response.POST.get("confpass")
 
-        cursor = connection.cursor()
-        sql_show = "SELECT * FROM USERS WHERE USER_ID = %s"
-        cursor.execute(sql_show, [user_id])
-        result = cursor.fetchall()
-        for r in result:
-            f_name_db = r[2]
-            l_name_db = r[3]
-            pass_db = r[4]
-            phone_db = r[6]
-            genre_db = r[8]
-        cursor.close()
+            cursor = connection.cursor()
+            sql_show = "SELECT * FROM USERS WHERE USER_ID = %s"
+            cursor.execute(sql_show, [user_id])
+            result = cursor.fetchall()
+            for r in result:
+                f_name_db = r[2]
+                l_name_db = r[3]
+                pass_db = r[4]
+                phone_db = r[6]
+                genre_db = r[8]
+            cursor.close()
 
-        l = []
-        if first_name == "":
-            l.append(f_name_db)
-        else:
-            l.append(first_name)
+            l = []
+            if first_name == "":
+                l.append(f_name_db)
+            else:
+                l.append(first_name)
 
-        if last_name == "":
-            l.append(l_name_db)
-        else:
-            l.append(last_name)
+            if last_name == "":
+                l.append(l_name_db)
+            else:
+                l.append(last_name)
 
-        if phone == "":
-            l.append(phone_db)
-        else:
-            l.append(phone)
+            if phone == "":
+                l.append(phone_db)
+            else:
+                l.append(phone)
 
-        if fav_gen == "":
-            l.append(genre_db)
-        else:
-            l.append(fav_gen)
+            if fav_gen == "":
+                l.append(genre_db)
+            else:
+                l.append(fav_gen)
 
-        if password == "":
-            change = 0
-            l.append(pass_db)
-        else:
-            change = 1
-            l.append(password)
-        print(l)
+            if password == "":
+                change = 0
+                l.append(pass_db)
+            else:
+                change = 1
+                l.append(password)
+            print(l)
 
-        if len(password) < 8 and password != "":
-            error_msg = "Password should be at least 8 characters"
-        elif password != "" and password != confpass:
-            error_msg = "Passwords do not match"
-        else:
-            pushintoDBsettings(l, user_id, change)
-            return redirect("http://127.0.0.1:8000/home/")
+            if len(password) < 8 and password != "":
+                error_msg = "Password should be at least 8 characters"
+            elif password != "" and password != confpass:
+                error_msg = "Passwords do not match"
+            else:
+                pushintoDBsettings(l, user_id, change)
+                return redirect("http://127.0.0.1:8000/home/")
     return render(response, 'home\settings.html', {"error_msg": error_msg})
