@@ -905,6 +905,27 @@ def single_show(response,show_id):
                 company_name = r_comp[0]
                 company_logo = r_comp[1]
 
+
+            #reviews
+
+            cursor = connection.cursor()
+            sql = "SELECT r.RATING_OUT_OF_FIVE, r.FEEDBACK, u.USER_FIRSTNAME, u.USER_LASTNAME FROM RATED r, USERS u" \
+                  " WHERE r.USER_IDRATE = u.USER_ID" \
+                  " AND r.SHOW_IDRATE = %s"
+            cursor.execute(sql, [show_id])
+            result_review = cursor.fetchall()
+            cursor.close()
+
+            review_list = []
+            review_count = 0
+            for r in result_review:
+                name = r[2]+" "+r[3]
+                row = {"rating_out_of_five": r[0],
+                       "feedback": r[1],
+                       "review_poster": name}
+                review_list.append(row)
+                review_count += 1
+
             #is subscribed?
 
 
@@ -959,7 +980,7 @@ def single_show(response,show_id):
             show_list.append(single_row)
             print("cl: "+company_logo)
 
-        return render(response,'home\single_show.html',{"shows": show_list})
+        return render(response, 'home\single_show.html', {"shows": show_list, "review_list": review_list , "review_count": review_count})
 
     else:
         return redirect("http://127.0.0.1:8000/user/login")
