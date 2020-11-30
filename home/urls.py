@@ -28,7 +28,9 @@ urlpatterns = [
     path('movies/<str:show_id>/', views.single_show, name="single_show"),
     path('series/<str:series_identifier>/', views.single_series, name="single_series"),
     path('subscribe/<str:show_identifier>/', views.subscribe_show, name="subscribe_show"),
+    path('home/subscribed_show/',views.subscribed_show,name="subscribed_show"),
     path('home/settings/',views.settings,name="settings"),
+    path('profile/<str:user_id>/',views.profile_show,name="profile_show")
 
 
 
