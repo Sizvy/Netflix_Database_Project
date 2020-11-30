@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="../../static/home/single_show/css/plugins.css">
 	<link rel="stylesheet" href="../../static/home/single_show/css/style.css">
     <script src="../../static/home/single_show/js/main.js" defer></script>
-
-
 {% endblock %}
+
+
 
 {% block content %}
 
@@ -204,7 +204,8 @@
 													</div>
                                                     {% endif %}
 													<p class="time">
-														<a href="#">{{ review.review_poster }}</a>
+													{{ review.review_time }}
+                                                        <a class="reviewer" id={{ review.reviewer_id }}>{{ review.review_poster }}</a>
 													</p>
 												</div>
 											</div>
@@ -693,6 +694,7 @@
 
 
 
+
     {% endfor %}
 
 
@@ -806,6 +808,11 @@ input {
           form.submit();
 
 
+    });
+
+    $('.reviewer').on("click", function(evt) {
+         var id = $(this).attr('id');
+        window.location = "http://127.0.0.1:8000/profile/"+id;
     });
 });
 
