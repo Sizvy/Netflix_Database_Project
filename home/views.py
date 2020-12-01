@@ -898,6 +898,7 @@ def single_show(response,show_id):
             director_id = r_temp[10]
             show_age_limit = r_temp[4]
             company_id = r_temp[9]
+            file_name = r_temp[7]
 
             # director information
             cursor = connection.cursor()
@@ -1017,6 +1018,7 @@ def single_show(response,show_id):
                           "show_year": show_year,
                           "show_age_limit": show_age_limit,
                           "show_user_rating": show_user_rating,
+                          "file_name": file_name,
                           "director_name": dir_name,
                           "director_link": dir_wiki_link,
                           "actor_list": actor_list,
