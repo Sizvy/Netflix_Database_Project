@@ -76,24 +76,15 @@
 						<div class="rate">
 							<i class="ion-android-star"></i>
 							<p><span>{{ series.user_rating }}</span> /5<br>
-								<span class="rv">56 Reviews</span>
+								<span class="rv">{{ series.no_of_reviews }} Reviews</span>
 							</p>
-						</div>
-						<div class="rate-star">
-							<p>Rate This Movie:  </p>
-							<i class="ion-ios-star"></i>
-							<i class="ion-ios-star"></i>
-							<i class="ion-ios-star"></i>
-							<i class="ion-ios-star"></i>
-							<i class="ion-ios-star-outline"></i>
 						</div>
 					</div>
 					<div class="movie-tabs">
 						<div class="tabs">
 							<ul class="tab-links tabs-mv">
 								<li class="active"><a href="#overview">Overview</a></li>
-								<li><a href="#reviews"> Reviews</a></li>
-								<li><a href="#cast">  Cast & Crew </a></li>
+								<li><a href="#episodes">  Episodes </a></li>
 								<li><a href="http://127.0.0.1:8000/genre/{{ series.genre }}"> Related SHOWS</a></li>
 							</ul>
 						    <div class="tab-content">
@@ -101,24 +92,11 @@
 						            <div class="row">
 						            	<div class="col-md-8 col-sm-12 col-xs-12">
 
-						            		<div class="title-hd-sm">
-												<h4>Videos & Photos</h4>
-												<a href="#" class="time">All 5 Videos & 245 Photos <i class="ion-ios-arrow-right"></i></a>
-											</div>
-											<div class="mvsingle-item ov-item">
-												<a class="img-lightbox"  data-fancybox-group="gallery" href="../../static/home/single_show/css/images/uploads/image11.jpg" ><img src="../../static/home/single_show/css/images/uploads/image1.jpg" alt=""></a>
-												<a class="img-lightbox"  data-fancybox-group="gallery" href="../../static/home/single_show/css/images/uploads/image21.jpg" ><img src="../../static/home/single_show/css/images/uploads/image2.jpg" alt=""></a>
-												<a class="img-lightbox"  data-fancybox-group="gallery" href="../../static/home/single_show/css/images/uploads/image31.jpg" ><img src="../../static/home/single_show/css/images/uploads/image3.jpg" alt=""></a>
-												<div class="vd-it">
-													<img class="vd-img" src="../../static/home/single_show/css/images/uploads/image4.jpg" alt="">
-													<a class="fancybox-media hvr-grow" href="https://www.youtube.com/embed/o-0hcF97wy0"><img src="../../static/home/single_show/css/images/uploads/play-vd.png" alt=""></a>
-												</div>
-											</div>
 											<div class="title-hd-sm">
 												<h4>Episodes: </h4>
 											</div>
-											<!-- movie cast -->
-											<div class="mvcast-item">
+											<!-- series episodes -->
+											<div id="episodes" class="mvcast-item">
                                                 {% for episode in series.episode_list %}
 												<div class="cast-it">
 

@@ -1115,11 +1115,28 @@ def single_series(response, series_identifier):
             is_subscribed = 1
 
 
+        reviewC = 0
+        cursor = connection.cursor()
+        sql = "SELECT SHOW_ID FROM SHOW se WHERE se.SERIES_ID = %s AND se.SEASON_NO = %s"
+        cursor.execute(sql, [series_id, season_no])
+        result_show = cursor.fetchall()
+        for r in result_show:
+            show_id = r[0]
+            cursor = connection.cursor()
+            sql = "SELECT COUNT(*) FROM RATED se WHERE SHOW_IDRATE = %s"
+            cursor.execute(sql, [show_id])
+            result_rate = cursor.fetchall()
+            for r in result_rate:
+                reviewC = reviewC + r[0]
+            cursor.close()
+        cursor.close()
+
+
 
         series = {"series_id":series_id,"season_no":season_no, "title": title, "category":category,
                   "start_year": start_year, "end_year": end_year, "cover_image": cover_image, "status": status,
                   "imdb_rating": imdb_rating, "user_rating": user_rating, "language": language, "genre": genre,
-                  "episode_list": show_list, "is_subscribed": is_subscribed}
+                  "episode_list": show_list, "is_subscribed": is_subscribed, "no_of_reviews": reviewC}
         print(series)
 
         return render(response, 'home\series_view.html', {"series": series})
@@ -1567,6 +1584,57 @@ def subscribed_show(response):
             if cnt_sub == 0:
                 error_msg = "Sorry! You haven't subscribed for a single show!"
         return render(response,'home\homepage.html',{'no_of_results': no_of_results, 'shows': show_list,"error_msg":error_msg})
+    else:
+        return redirect("http://127.0.0.1:8000/user/login")
+
+
+def unsubscribe_show(response, show_identifier):
+    if response.session.get('is_logged_in', False) == True:
+
+        user_id = response.session.get('user_ID')
+        show_identifier = show_identifier.split("_")
+        show_type = show_identifier[0]
+
+        if show_type == "show":
+            print("show")
+            show_id = show_identifier[1]
+            print(show_id)
+
+            cursor = connection.cursor()
+            sql = "DELETE FROM SUBSCRIPTION sub" \
+                  " WHERE sub.USER_IDSUB = %s AND sub.SHOW_IDSUB = %s"
+            cursor.execute(sql, [user_id, show_id])
+            cursor.close()
+
+            return redirect("http://127.0.0.1:8000/movies/"+show_id+"/")
+
+
+        elif show_type == "series":
+            print("series")
+            series_id = show_identifier[1]
+            season_no = show_identifier[2]
+            print(series_id)
+            print(season_no)
+
+            cursor = connection.cursor()
+            sql = "SELECT DISTINCT SHOW_ID FROM SHOW s, SERIES se" \
+                  " WHERE s.SERIES_ID = se.SERIES_ID" \
+                  " AND s.SEASON_NO = se.SEASON_NO" \
+                  " AND s.SERIES_ID = %s AND s.SEASON_NO = %s"
+
+            cursor.execute(sql, [series_id, season_no])
+            result_shows = cursor.fetchall()
+            cursor.close()
+
+            for r_show in result_shows:
+                cursor = connection.cursor()
+                sql = "DELETE FROM SUBSCRIPTION sub" \
+                      " WHERE sub.USER_IDSUB = %s AND sub.SHOW_IDSUB = %s"
+                cursor.execute(sql, [user_id, r_show[0]])
+                cursor.close()
+
+            return redirect("http://127.0.0.1:8000/series/"+series_id+"_"+season_no+"/")
+
     else:
         return redirect("http://127.0.0.1:8000/user/login")
 
