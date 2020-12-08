@@ -33,6 +33,7 @@ urlpatterns = [
     path('home/subscribed_show/',views.subscribed_show,name="subscribed_show"),
     path('home/settings/',views.settings,name="settings"),
     path('profile/<str:user_id>/',views.profile_show,name="profile_show"),
+    path('home/downloads/',views.downloads,name="downloads"),
 
 
 

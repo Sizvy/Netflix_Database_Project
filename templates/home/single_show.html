@@ -62,6 +62,12 @@
                                 </div>
                             {% endif %}
                         {% endif %}
+                        {% if show.is_series == 1 %}
+                             <div class="btn-transform transform-vertical">
+                                    <div><a href="http://127.0.0.1:8000/series/{{ show.series_id }}_{{ show.season_no }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> Go to Series</a></div>
+                                    <div><a href="http://127.0.0.1:8000/series/{{ show.series_id }}_{{ show.season_no }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
+                             </div>
+                    ````{% endif %}
 					</div>
 				</div>
 			</div>
