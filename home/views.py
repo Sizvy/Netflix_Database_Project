@@ -961,7 +961,8 @@ def single_show(response,show_id):
 
             user_id = response.session.get('user_ID')
             cursor = connection.cursor()
-            sql = "SELECT * from SUBSCRIPTION sub WHERE sub.USER_IDSUB = %s AND sub.SHOW_IDSUB = %s"
+            sql = "SELECT * from SUBSCRIPTION sub WHERE sub.USER_IDSUB = %s AND sub.SHOW_IDSUB = %s" \
+                  " AND sub.SUBSCRIPTION_STATUS = 'ACTIVE'"
             cursor.execute(sql, [user_id, show_id])
             result_sub = cursor.fetchall()
             cursor.close()
@@ -1037,8 +1038,6 @@ def single_series(response, series_identifier):
         result = cursor.fetchall()
         cursor.close()
 
-
-
         title=""
         category=""
         start_year=""
@@ -1085,6 +1084,7 @@ def single_series(response, series_identifier):
               " WHERE s.SERIES_ID = se.SERIES_ID AND s.SEASON_NO = se.SEASON_NO" \
               " AND s.SHOW_ID = sub.SHOW_IDSUB" \
               " AND u.USER_ID = sub.USER_IDSUB" \
+              " AND sub.SUBSCRIPTION_STATUS = 'ACTIVE'" \
               " AND u.USER_ID = %s" \
               " AND se.SERIES_ID = %s AND se.SEASON_NO = %s"
 
@@ -1237,23 +1237,49 @@ def subscribe_show(response,show_identifier):
                                 cursor.execute(sql, [bill_id, bill_desc, service_period, amount, card_number])
                                 cursor.close()
 
-                                # generate sub_id
+
+                                #check subscription is there or one?
                                 cursor = connection.cursor()
-                                sql_ID = "SELECT NVL(MAX(SUBSCRIPTION_ID),0) FROM SUBSCRIPTION"
-                                cursor.execute(sql_ID)
-                                result_sub = cursor.fetchall()
-                                for i in result_sub:
-                                    sub_id = i[0]
+                                sql_isthere = "SELECT * FROM SUBSCRIPTION sub" \
+                                              " WHERE sub.USER_IDSUB = %s" \
+                                              " AND sub.show_IDSUB = %s"
+                                user_id = response.session.get('user_ID')
+                                cursor.execute(sql_isthere, [user_id, show_id])
+                                result_isthere = cursor.fetchall()
                                 cursor.close()
-                                sub_id = sub_id + 1
+
+                                cnt = 0
+                                for r in result_isthere:
+                                    cnt += 1
 
                                 sub_status = "ACTIVE"
-                                cursor = connection.cursor()
-                                sql = "INSERT INTO SUBSCRIPTION VALUES(%s,ADD_MONTHS(SYSDATE,%s),%s,%s,%s,%s)"
-                                user_id = response.session.get('user_ID')
-                                cursor.execute(sql, [sub_id, service_period, sub_status, user_id, show_id, bill_id])
-                                cursor.close()
-                                print("Successfully Subscribed")
+                                if cnt == 0:
+                                    # generate sub_id
+                                    cursor = connection.cursor()
+                                    sql_ID = "SELECT NVL(MAX(SUBSCRIPTION_ID),0) FROM SUBSCRIPTION"
+                                    cursor.execute(sql_ID)
+                                    result_sub = cursor.fetchall()
+                                    for i in result_sub:
+                                        sub_id = i[0]
+                                    cursor.close()
+                                    sub_id = sub_id + 1
+
+                                    cursor = connection.cursor()
+                                    sql = "INSERT INTO SUBSCRIPTION VALUES(%s,ADD_MONTHS(SYSDATE,%s),%s,%s,%s,%s)"
+                                    user_id = response.session.get('user_ID')
+                                    cursor.execute(sql, [sub_id, service_period, sub_status, user_id, show_id, bill_id])
+                                    cursor.close()
+                                    print("Successfully Subscribed")
+
+                                else:
+                                    cursor = connection.cursor()
+                                    sql = "UPDATE SUBSCRIPTION sub" \
+                                          " SET sub.SUBSCRIPTION_STATUS = %s, sub.SUBSCRIPTION_PERIOD = ADD_MONTHS(SYSDATE,%s)" \
+                                          " WHERE sub.USER_IDSUB = %s AND sub.SHOW_IDSUB = %s"
+                                    cursor.execute(sql, [sub_status, service_period, user_id, show_id])
+                                    cursor.close()
+                                    print("Successfully Subscription Updated")
+
 
                                 curs_id = int(user_id)
                                 print("curs_id"+str(curs_id))
@@ -1425,6 +1451,7 @@ def subscribed_show(response):
                 cursor = connection.cursor()
                 sql = "SELECT DISTINCT(s.SHOW_ID) FROM SHOW s,ACTOR a,ACT ac, SUBSCRIPTION sub" \
                       " WHERE s.SHOW_ID = ac.SHOW_IDACT AND ac.ACTOR_IDACT = a.PERSON_ID AND s.SHOW_ID = sub.SHOW_IDSUB AND" \
+                      " sub.SUBSCRIPTION_STATUS = 'ACTIVE' AND" \
                       " sub.USER_IDSUB = %s AND" \
                       " regexp_replace(LOWER(a.ACTOR_FIRST_NAME || ' ' || a.ACTOR_LAST_NAME), ' ','') like (%s)" \
                       " UNION" \
@@ -1433,6 +1460,7 @@ def subscribed_show(response):
                       " AND s.SEASON_NO = se.SEASON_NO" \
                       " AND s.SHOW_ID = sub.SHOW_IDSUB" \
                       " AND sub.USER_IDSUB = %s" \
+                      " AND sub.SUBSCRIPTION_STATUS = 'ACTIVE'" \
                       " AND regexp_replace(LOWER(se.TITLE), ' ','') like (%s)" \
                       " )" \
                       " UNION" \
@@ -1441,12 +1469,13 @@ def subscribed_show(response):
                       " FROM SHOW s, DIRECTOR d, SUBSCRIPTION sub" \
                       " WHERE s.DIRECTOR_ID = d.PERSON_ID AND s.SHOW_ID = sub.SHOW_IDSUB AND" \
                       " sub.USER_IDSUB = %s AND" \
+                      " sub.SUBSCRIPTION_STATUS = 'ACTIVE' AND" \
                       " regexp_replace(LOWER (d.DIRECTOR_FIRST_NAME || ' ' || d.DIRECTOR_LAST_NAME), ' ','') like (%s)" \
                       " )" \
                       " UNION" \
                       " (" \
                       " SELECT DISTINCT(s.SHOW_ID) FROM SHOW s, SUBSCRIPTION sub" \
-                      " WHERE s.SHOW_ID = sub.SHOW_IDSUB AND sub.USER_IDSUB = %s AND" \
+                      " WHERE s.SHOW_ID = sub.SHOW_IDSUB AND sub.USER_IDSUB = %s AND sub.SUBSCRIPTION_STATUS = 'ACTIVE' AND" \
                       " (regexp_replace(LOWER(s.TITLE), ' ','') like (%s)" \
                       " OR regexp_replace(LOWER(s.GENRE), ' ','') like (%s))" \
                       " )"
@@ -1482,7 +1511,9 @@ def subscribed_show(response):
                 if search_genre != "":
                     cursor = connection.cursor()
                     sql_genre = "SELECT DISTINCT(s.SHOW_ID) FROM SHOW s, SUBSCRIPTION sub" \
-                                " where s.SHOW_ID = sub.SHOW_IDSUB AND regexp_replace(LOWER(s.GENRE), ' ','') Like (%s) AND" \
+                                " where s.SHOW_ID = sub.SHOW_IDSUB AND" \
+                                " sub.SUBSCRIPTION_STATUS = 'ACTIVE' AND" \
+                                " regexp_replace(LOWER(s.GENRE), ' ','') Like (%s) AND" \
                                 " sub.USER_IDSUB = %s"
                     cursor.execute(sql_genre, [search_genre,user_id])
                     result_genre = cursor.fetchall()
@@ -1494,7 +1525,9 @@ def subscribed_show(response):
                 if search_lang != "":
                     cursor = connection.cursor()
                     sql_lang = "SELECT DISTINCT(s.SHOW_ID) FROM SHOW s, SUBSCRIPTION sub" \
-                               " WHERE s.SHOW_ID = sub.SHOW_IDSUB AND regexp_replace(LOWER(s.LANGUAGE), ' ','') Like (%s) AND" \
+                               " WHERE s.SHOW_ID = sub.SHOW_IDSUB AND" \
+                               " sub.SUBSCRIPTION_STATUS = 'ACTIVE' AND" \
+                               " regexp_replace(LOWER(s.LANGUAGE), ' ','') Like (%s) AND" \
                                " sub.USER_IDSUB = %s"
                     cursor.execute(sql_lang, [search_lang,user_id])
                     result_lang = cursor.fetchall()
@@ -1505,7 +1538,10 @@ def subscribed_show(response):
                 result_from = []
                 if search_from != "":
                     cursor = connection.cursor()
-                    sql_from = "SELECT DISTINCT(s.SHOW_ID) FROM SHOW s, SUBSCRIPTION sub where s.SHOW_ID = sub.SHOW_IDSUB AND s.YEAR >= %s AND " \
+                    sql_from = "SELECT DISTINCT(s.SHOW_ID) FROM SHOW s, SUBSCRIPTION sub" \
+                               " where s.SHOW_ID = sub.SHOW_IDSUB AND" \
+                               " sub.SUBSCRIPTION_STATUS = 'ACTIVE' AND" \
+                               " s.YEAR >= %s AND " \
                                " sub.USER_IDSUB = %s"
                     cursor.execute(sql_from, [search_from,user_id])
                     result_from = cursor.fetchall()
@@ -1516,8 +1552,11 @@ def subscribed_show(response):
                 result_to = []
                 if search_to != "":
                     cursor = connection.cursor()
-                    sql_to = "SELECT DISTINCT(s.SHOW_ID) FROM SHOW s, SUBSCRIPTION sub where s.SHOW_ID = sub.SHOW_IDSUB AND s.YEAR <= %s AND " \
-                               " sub.USER_IDSUB = %s"
+                    sql_to = "SELECT DISTINCT(s.SHOW_ID) FROM SHOW s, SUBSCRIPTION sub" \
+                             " where s.SHOW_ID = sub.SHOW_IDSUB" \
+                             " AND sub.SUBSCRIPTION_STATUS = 'ACTIVE'" \
+                             " AND s.YEAR <= %s" \
+                             " AND sub.USER_IDSUB = %s"
                     cursor.execute(sql_to, [search_to,user_id])
                     result_to = cursor.fetchall()
                     cursor.close()
@@ -1566,7 +1605,7 @@ def subscribed_show(response):
                 no_of_results = str(cnt)
         else:
             cursor = connection.cursor()
-            sql_subs = "SELECT * FROM SUBSCRIPTION WHERE USER_IDSUB = %s"
+            sql_subs = "SELECT * FROM SUBSCRIPTION sub WHERE sub.USER_IDSUB = %s AND sub.SUBSCRIPTION_STATUS = 'ACTIVE'"
             cursor.execute(sql_subs, [user_id])
             result = cursor.fetchall()
             #print(result)

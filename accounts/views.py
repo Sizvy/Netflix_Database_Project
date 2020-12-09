@@ -192,7 +192,11 @@ def login(request):
 
                 request.session['is_logged_in'] = True
                 request.session['user_ID'] = str(user_ID)
-                request.session.set_expiry(0)
+                request.session.set_expiry(300)
+
+                cursor = connection.cursor()
+                cursor.callproc('UPDATE_SUBSCRIPTION', [user_ID])
+                cursor.close()
                 #redirect to home page
                 #return redirect("http://127.0.0.1:8000/home/"+str(user_ID)+"/")
                 return redirect("http://127.0.0.1:8000/home/")
