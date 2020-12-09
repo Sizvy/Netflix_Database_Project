@@ -36,14 +36,11 @@ def push_into_db(l):
 
     #generate user id
     cursor = connection.cursor()
-    sql_ID = "SELECT NVL(MAX(USER_ID),0) FROM USERS"
-    cursor.execute(sql_ID)
-    result = cursor.fetchall()
-    for i in result:
-        ID = i[0]
-    cursor.close()
-    ID = ID+1
+    ID = cursor.callfunc('GIVEMAXUSERID', int)
+
+    print("Calling Function")
     print(ID)
+    cursor.close()
 
 
     #current date
@@ -192,7 +189,8 @@ def login(request):
 
                 request.session['is_logged_in'] = True
                 request.session['user_ID'] = str(user_ID)
-                request.session.set_expiry(300)
+                #expires after 5 minutes of inactivity
+                request.session.set_expiry(0)
 
                 cursor = connection.cursor()
                 cursor.callproc('UPDATE_SUBSCRIPTION', [user_ID])

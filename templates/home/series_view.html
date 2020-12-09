@@ -85,6 +85,7 @@
 							<ul class="tab-links tabs-mv">
 								<li class="active"><a href="#overview">Overview</a></li>
 								<li><a href="#episodes">  Episodes </a></li>
+                                <li><a href="#reviews">  Reviews </a></li>
 								<li><a href="http://127.0.0.1:8000/genre/{{ series.genre }}"> Related SHOWS</a></li>
 							</ul>
 						    <div class="tab-content">
@@ -111,11 +112,11 @@
 											</div>
 											<div class="title-hd-sm">
 												<h4>User reviews</h4>
-												<a href="#" class="time">{{ series.no_of_reviews }} Reviews <i class="ion-ios-arrow-right"></i></a>
+												<a id = "reviews" href="#" class="time">{{ series.no_of_reviews }} Reviews <i class="ion-ios-arrow-right"></i></a>
 											</div>
 											<!-- movie user review -->
 											{% for review in series.review_list%}
-										<div id = "reviews" class="mv-user-review-item">
+										<div class="mv-user-review-item">
 											<div class="user-infor">
 												<img src="images/uploads/userava1.jpg" alt="">
 												<div>

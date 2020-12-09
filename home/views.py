@@ -1220,15 +1220,14 @@ def subscribe_show(response,show_identifier):
                                 cursor.execute(sql, [val, card_number])
                                 cursor.close()
 
+
                                 # generate bill_id
                                 cursor = connection.cursor()
-                                sql_ID = "SELECT NVL(MAX(BILL_ID),0) FROM BILLING_HISTORY"
-                                cursor.execute(sql_ID)
-                                result = cursor.fetchall()
-                                for i in result:
-                                    bill_id = i[0]
+                                bill_id = cursor.callfunc('GIVEMAXBILLID', int)
+
+                                print("Calling Function")
+                                print(bill_id)
                                 cursor.close()
-                                bill_id = bill_id + 1
 
                                 bill_desc = "EMPTY"
                                 service_period = 6
@@ -1256,13 +1255,11 @@ def subscribe_show(response,show_identifier):
                                 if cnt == 0:
                                     # generate sub_id
                                     cursor = connection.cursor()
-                                    sql_ID = "SELECT NVL(MAX(SUBSCRIPTION_ID),0) FROM SUBSCRIPTION"
-                                    cursor.execute(sql_ID)
-                                    result_sub = cursor.fetchall()
-                                    for i in result_sub:
-                                        sub_id = i[0]
+                                    sub_id = cursor.callfunc('GIVEMAXSUBID', int)
+
+                                    print("Calling Function")
+                                    print(sub_id)
                                     cursor.close()
-                                    sub_id = sub_id + 1
 
                                     cursor = connection.cursor()
                                     sql = "INSERT INTO SUBSCRIPTION VALUES(%s,ADD_MONTHS(SYSDATE,%s),%s,%s,%s,%s)"
@@ -1364,13 +1361,11 @@ def subscribe_show(response,show_identifier):
 
                             # generate bill_id
                             cursor = connection.cursor()
-                            sql_ID = "SELECT NVL(MAX(BILL_ID),0) FROM BILLING_HISTORY"
-                            cursor.execute(sql_ID)
-                            result = cursor.fetchall()
-                            for i in result:
-                                bill_id = i[0]
+                            bill_id = cursor.callfunc('GIVEMAXBILLID', int)
+
+                            print("Calling Function")
+                            print(bill_id)
                             cursor.close()
-                            bill_id = bill_id + 1
 
                             bill_desc = "EMPTY"
                             service_period = 6
@@ -1385,22 +1380,58 @@ def subscribe_show(response,show_identifier):
                                 print(show_id)
                                 # generate sub_id
                                 cursor = connection.cursor()
-                                sql_ID = "SELECT NVL(MAX(SUBSCRIPTION_ID),0) FROM SUBSCRIPTION"
-                                cursor.execute(sql_ID)
-                                result_sub = cursor.fetchall()
-                                for i in result_sub:
-                                    sub_id = i[0]
+                                sub_id = cursor.callfunc('GIVEMAXSUBID', int)
+
+                                print("Calling Function")
+                                print(sub_id)
                                 cursor.close()
-                                sub_id = sub_id + 1
+
+                                # check subscription is there or one?
+                                cursor = connection.cursor()
+                                sql_isthere = "SELECT * FROM SUBSCRIPTION sub" \
+                                              " WHERE sub.USER_IDSUB = %s" \
+                                              " AND sub.show_IDSUB = %s"
+                                user_id = response.session.get('user_ID')
+                                cursor.execute(sql_isthere, [user_id, show_id])
+                                result_isthere = cursor.fetchall()
+                                cursor.close()
+
+                                cnt = 0
+                                for r in result_isthere:
+                                    cnt += 1
 
                                 sub_status = "ACTIVE"
-                                cursor = connection.cursor()
-                                sql = "INSERT INTO SUBSCRIPTION VALUES(%s,ADD_MONTHS(SYSDATE,%s),%s,%s,%s,%s)"
-                                user_id = response.session.get('user_ID')
-                                cursor.execute(sql, [sub_id, service_period, sub_status, user_id, show_id, bill_id])
-                                cursor.close()
+                                if cnt == 0:
+                                    # generate sub_id
+                                    cursor = connection.cursor()
+                                    sub_id = cursor.callfunc('GIVEMAXSUBID', int)
 
-                                print("Successfully Subscribed")
+                                    print("Calling Function")
+                                    print(sub_id)
+                                    cursor.close()
+
+                                    cursor = connection.cursor()
+                                    sql = "INSERT INTO SUBSCRIPTION VALUES(%s,ADD_MONTHS(SYSDATE,%s),%s,%s,%s,%s)"
+                                    user_id = response.session.get('user_ID')
+                                    cursor.execute(sql, [sub_id, service_period, sub_status, user_id, show_id, bill_id])
+                                    cursor.close()
+                                    print("Successfully Subscribed")
+
+                                else:
+                                    cursor = connection.cursor()
+                                    sql = "UPDATE SUBSCRIPTION sub" \
+                                          " SET sub.SUBSCRIPTION_STATUS = %s, sub.SUBSCRIPTION_PERIOD = ADD_MONTHS(SYSDATE,%s)" \
+                                          " WHERE sub.USER_IDSUB = %s AND sub.SHOW_IDSUB = %s"
+                                    cursor.execute(sql, [sub_status, service_period, user_id, show_id])
+                                    cursor.close()
+                                    print("Successfully Subscription Updated")
+
+                            curs_id = int(user_id)
+                            print("curs_id" + str(curs_id))
+                            print(type(curs_id))
+                            cursor = connection.cursor()
+                            cursor.callproc('UPDATE_FAV_GENRE', [curs_id])
+                            cursor.close()
 
                             return redirect("http://127.0.0.1:8000/series/" + series_id + "_"+season_no+"/")
 
@@ -1656,8 +1687,10 @@ def unsubscribe_show(response, show_identifier):
             print(show_id)
 
             cursor = connection.cursor()
-            sql = "DELETE FROM SUBSCRIPTION sub" \
-                  " WHERE sub.USER_IDSUB = %s AND sub.SHOW_IDSUB = %s"
+            sql = "UPDATE SUBSCRIPTION sub" \
+                  " SET sub.SUBSCRIPTION_STATUS = 'INACTIVE'" \
+                  " WHERE sub.USER_IDSUB = %s" \
+                  " AND sub.SHOW_IDSUB = %s"
             cursor.execute(sql, [user_id, show_id])
             cursor.close()
 
@@ -1683,8 +1716,10 @@ def unsubscribe_show(response, show_identifier):
 
             for r_show in result_shows:
                 cursor = connection.cursor()
-                sql = "DELETE FROM SUBSCRIPTION sub" \
-                      " WHERE sub.USER_IDSUB = %s AND sub.SHOW_IDSUB = %s"
+                sql = "UPDATE SUBSCRIPTION sub" \
+                      " SET sub.SUBSCRIPTION_STATUS = 'INACTIVE'" \
+                      " WHERE sub.USER_IDSUB = %s" \
+                      " AND sub.SHOW_IDSUB = %s"
                 cursor.execute(sql, [user_id, r_show[0]])
                 cursor.close()
 
@@ -1874,7 +1909,7 @@ def downloads(response):
     if response.session.get('is_logged_in', False) == True:
         user_id = response.session.get('user_ID', -1)
     cursor = connection.cursor()
-    sql = "SELECT TO_CHAR(DOWNLOAD_TIME,'MON dd, YYYY') FROM DOWNLOAD_HISTORY ORDER BY DOWNLOAD_TIME DESC"
+    sql = "SELECT TO_CHAR(DOWNLOAD_TIME,'MON dd, YYYY hh:mi:ss') FROM DOWNLOAD_HISTORY ORDER BY DOWNLOAD_TIME DESC"
     cursor.execute(sql)
     result_date = cursor.fetchall()
     cursor.close()
@@ -1884,7 +1919,7 @@ def downloads(response):
     cnt = 0
     show_list = []
     cursor = connection.cursor()
-    sql = "SELECT sh.SHOW_ID, sh.TITLE, sh.GENRE, sh.USER_RATING, TO_CHAR(dh.DOWNLOAD_TIME,'MON dd, YYYY') FROM SHOW sh, SUBSCRIPTION sub, DOWNLOAD_HISTORY dh WHERE dh.SUB_ID = sub.SUBSCRIPTION_ID AND sub.SHOW_IDSUB = sh.SHOW_ID AND sub.USER_IDSUB = %s ORDER BY DOWNLOAD_TIME DESC"
+    sql = "SELECT sh.SHOW_ID, sh.TITLE, sh.GENRE, sh.USER_RATING, TO_CHAR(dh.DOWNLOAD_TIME,'MON dd, YYYY hh:mi:ss') FROM SHOW sh, SUBSCRIPTION sub, DOWNLOAD_HISTORY dh WHERE dh.SUB_ID = sub.SUBSCRIPTION_ID AND sub.SHOW_IDSUB = sh.SHOW_ID AND sub.USER_IDSUB = %s ORDER BY DOWNLOAD_TIME DESC"
     cursor.execute(sql,[user_id])
     result_show = cursor.fetchall()
     cursor.close()
