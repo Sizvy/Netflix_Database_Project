@@ -141,7 +141,7 @@ def register(response):
                     logged_in = True
                     print("Successfully registered")
                     #redirect to login page
-                    return redirect("http://127.0.0.1:8000/user/login/")
+                    return redirect("/user/login/")
 
 
     return render(response, 'accounts\RegisterForm.html',{"error_msg":error_msg , "form_values": form_values})
@@ -161,7 +161,7 @@ def login(request):
 
 
     if request.session.get('is_logged_in', False) == True:
-        return redirect("http://127.0.0.1:8000/home/")
+        return redirect("/home/")
 
     elif request.method == "POST":
         #print(request.POST)
@@ -197,7 +197,7 @@ def login(request):
                 cursor.close()
                 #redirect to home page
                 #return redirect("http://127.0.0.1:8000/home/"+str(user_ID)+"/")
-                return redirect("http://127.0.0.1:8000/home/")
+                return redirect("/home/")
 
 
     return render(request, 'accounts\loginForm.html',{"error_msg" : error_msg})
@@ -250,7 +250,7 @@ def resetpass(response):
                 connection.commit()
                 cursor.close()
                 print("successfully changed your password")
-                return redirect("http://127.0.0.1:8000/user/login/")
+                return redirect("/user/login/")
 
     return render(response, 'accounts\ResetPassword.html', {"error_msg": error_msg})
 

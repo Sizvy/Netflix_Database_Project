@@ -226,7 +226,7 @@ def home_notLoggedIn(response):
         return render(response, "home/homepage.html", {'no_of_results': no_of_results, 'shows': show_list, 'error_msg': error_msg})
 
     else:
-        return redirect("http://127.0.0.1:8000/user/login")
+        return redirect("/user/login")
 
 
 def log_out(request):
@@ -238,7 +238,7 @@ def log_out(request):
             pass
         print("logged out successfully")
 
-    return redirect("http://127.0.0.1:8000/user/login")
+    return redirect("/user/login")
 
 
 def genre(response, genre_name):
@@ -289,7 +289,7 @@ def genre(response, genre_name):
                       {'no_of_results': no_of_results, 'shows': show_list, 'error_msg': error_msg})
     else:
         print("not logged in")
-        return redirect("http://127.0.0.1:8000/user/login/")
+        return redirect("/user/login/")
 
 
 def shows(response, show_type):
@@ -550,7 +550,7 @@ def shows(response, show_type):
 
     else:
         print("not logged in")
-        return redirect("http://127.0.0.1:8000/user/login/")
+        return redirect("/user/login/")
 
 
 
@@ -760,7 +760,7 @@ def movies(response):
                       {'no_of_results': no_of_results, 'shows': show_list, 'error_msg': error_msg})
 
     else:
-        return redirect("http://127.0.0.1:8000/user/login")
+        return redirect("/user/login")
 
 
 
@@ -1021,7 +1021,7 @@ def single_show(response,show_id):
         return render(response, 'home\single_show.html', {"shows": show_list, "review_list": review_list , "review_count": review_count})
 
     else:
-        return redirect("http://127.0.0.1:8000/user/login")
+        return redirect("/user/login")
 
 
 
@@ -1160,7 +1160,7 @@ def single_series(response, series_identifier):
 
 
     else:
-        return redirect("http://127.0.0.1:8000/user/login")
+        return redirect("/user/login")
 
 
 
@@ -1285,7 +1285,7 @@ def subscribe_show(response,show_identifier):
                                 cursor.callproc('UPDATE_FAV_GENRE', [curs_id])
                                 cursor.close()
 
-                                return redirect("http://127.0.0.1:8000/movies/"+show_id+"/")
+                                return redirect("/movies/"+show_id+"/")
 
 
 
@@ -1426,14 +1426,15 @@ def subscribe_show(response,show_identifier):
                                     cursor.close()
                                     print("Successfully Subscription Updated")
 
-                            curs_id = int(user_id)
-                            print("curs_id" + str(curs_id))
-                            print(type(curs_id))
-                            cursor = connection.cursor()
-                            cursor.callproc('UPDATE_FAV_GENRE', [curs_id])
-                            cursor.close()
+                                curs_id = int(user_id)
+                                print("curs_id" + str(curs_id))
+                                print(type(curs_id))
+                                cursor = connection.cursor()
+                                cursor.callproc('UPDATE_FAV_GENRE', [curs_id])
+                                cursor.close()
 
-                            return redirect("http://127.0.0.1:8000/series/" + series_id + "_"+season_no+"/")
+
+                            return redirect("/series/" + series_id + "_"+season_no+"/")
 
 
                         else:
@@ -1448,7 +1449,7 @@ def subscribe_show(response,show_identifier):
         return render(response,'home\subscribe.html', {"show": show, "error_msg": error_msg})
 
     else:
-        return redirect("http://127.0.0.1:8000/user/login")
+        return redirect("/user/login")
 
 
 
@@ -1671,7 +1672,7 @@ def subscribed_show(response):
                 error_msg = "Sorry! You haven't subscribed for a single show!"
         return render(response,'home\homepage.html',{'no_of_results': no_of_results, 'shows': show_list,"error_msg":error_msg})
     else:
-        return redirect("http://127.0.0.1:8000/user/login")
+        return redirect("/user/login")
 
 
 def unsubscribe_show(response, show_identifier):
@@ -1694,7 +1695,7 @@ def unsubscribe_show(response, show_identifier):
             cursor.execute(sql, [user_id, show_id])
             cursor.close()
 
-            return redirect("http://127.0.0.1:8000/movies/"+show_id+"/")
+            return redirect("/movies/"+show_id+"/")
 
 
         elif show_type == "series":
@@ -1723,10 +1724,10 @@ def unsubscribe_show(response, show_identifier):
                 cursor.execute(sql, [user_id, r_show[0]])
                 cursor.close()
 
-            return redirect("http://127.0.0.1:8000/series/"+series_id+"_"+season_no+"/")
+            return redirect("/series/"+series_id+"_"+season_no+"/")
 
     else:
-        return redirect("http://127.0.0.1:8000/user/login")
+        return redirect("/user/login")
 
 
 
@@ -1836,12 +1837,12 @@ def settings(response):
                     error_msg = "File has to be an image"
                 else:
                     pushintoDBsettings(l, user_id, change)
-                    return redirect("http://127.0.0.1:8000/home/")
+                    return redirect("/home/")
 
         return render(response, "home/settings.html", {"error_msg": error_msg})
 
     else:
-        return redirect("http://127.0.0.1:8000/user/login/")
+        return redirect("/user/login/")
 
 
 def profile_show(response, user_id):
@@ -1908,34 +1909,36 @@ def profile_show(response, user_id):
 def downloads(response):
     if response.session.get('is_logged_in', False) == True:
         user_id = response.session.get('user_ID', -1)
-    cursor = connection.cursor()
-    sql = "SELECT TO_CHAR(DOWNLOAD_TIME,'MON dd, YYYY hh:mi:ss') FROM DOWNLOAD_HISTORY ORDER BY DOWNLOAD_TIME DESC"
-    cursor.execute(sql)
-    result_date = cursor.fetchall()
-    cursor.close()
-    #print(result_date)
+        cursor = connection.cursor()
+        sql = "SELECT TO_CHAR(DOWNLOAD_TIME,'MON dd, YYYY hh:mi:ss') FROM DOWNLOAD_HISTORY ORDER BY DOWNLOAD_TIME DESC"
+        cursor.execute(sql)
+        result_date = cursor.fetchall()
+        cursor.close()
+        #print(result_date)
 
-    msg = ""
-    cnt = 0
-    show_list = []
-    cursor = connection.cursor()
-    sql = "SELECT sh.SHOW_ID, sh.TITLE, sh.GENRE, sh.USER_RATING, TO_CHAR(dh.DOWNLOAD_TIME,'MON dd, YYYY hh:mi:ss') FROM SHOW sh, SUBSCRIPTION sub, DOWNLOAD_HISTORY dh WHERE dh.SUB_ID = sub.SUBSCRIPTION_ID AND sub.SHOW_IDSUB = sh.SHOW_ID AND sub.USER_IDSUB = %s ORDER BY DOWNLOAD_TIME DESC"
-    cursor.execute(sql,[user_id])
-    result_show = cursor.fetchall()
-    cursor.close()
-    #print(result_show)
-    for r in result_show:
-        cnt = cnt + 1
-        show_id = r[0]
-        show_title = r[1]
-        show_genre = r[2]
-        show_urating = r[3]
-        dtime = r[4]
-        single_row = {"show_id":show_id,"show_title":show_title,"show_genre":show_genre,"show_urating":show_urating,"dtime":dtime}
-        show_list.append(single_row)
-    print(show_list)
-    print(cnt)
-    if cnt == 0:
-        msg = "Sorry! You haven't downloaded a single show!"
-        cnt = str(cnt)
-    return render(response, 'home\downloads.html',{"show_list":show_list,"count":cnt,"msg":msg})
+        msg = ""
+        cnt = 0
+        show_list = []
+        cursor = connection.cursor()
+        sql = "SELECT sh.SHOW_ID, sh.TITLE, sh.GENRE, sh.USER_RATING, TO_CHAR(dh.DOWNLOAD_TIME,'MON dd, YYYY hh:mi:ss') FROM SHOW sh, SUBSCRIPTION sub, DOWNLOAD_HISTORY dh WHERE dh.SUB_ID = sub.SUBSCRIPTION_ID AND sub.SHOW_IDSUB = sh.SHOW_ID AND sub.USER_IDSUB = %s ORDER BY DOWNLOAD_TIME DESC"
+        cursor.execute(sql,[user_id])
+        result_show = cursor.fetchall()
+        cursor.close()
+        #print(result_show)
+        for r in result_show:
+            cnt = cnt + 1
+            show_id = r[0]
+            show_title = r[1]
+            show_genre = r[2]
+            show_urating = r[3]
+            dtime = r[4]
+            single_row = {"show_id":show_id,"show_title":show_title,"show_genre":show_genre,"show_urating":show_urating,"dtime":dtime}
+            show_list.append(single_row)
+        print(show_list)
+        print(cnt)
+        if cnt == 0:
+            msg = "Sorry! You haven't downloaded a single show!"
+            cnt = str(cnt)
+        return render(response, 'home\downloads.html',{"show_list":show_list,"count":cnt,"msg":msg})
+    else:
+        return redirect("/user/login/")

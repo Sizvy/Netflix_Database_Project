@@ -43,13 +43,13 @@
                         {% if series.is_subscribed == 0 %}
                             <div class="btn-transform transform-vertical">
 
-                                <div><a href="http://127.0.0.1:8000/subscribe/series_{{ series.series_id }}_{{ series.season_no }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> Subscribe</a></div>
-                                <div><a href="http://127.0.0.1:8000/subscribe/series_{{ series.series_id }}_{{ series.season_no }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
+                                <div><a href="/subscribe/series_{{ series.series_id }}_{{ series.season_no }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> Subscribe</a></div>
+                                <div><a href="/subscribe/series_{{ series.series_id }}_{{ series.season_no }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
                             </div>
                         {% elif series.is_subscribed == 1 %}
                              <div class="btn-transform transform-vertical">
-                                <div><a href="http://127.0.0.1:8000/unsubscribe/series_{{ series.series_id }}_{{ series.season_no }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> Unsubscribe</a></div>
-                                <div><a href="http://127.0.0.1:8000/unsubscribe/series_{{ series.series_id }}_{{ series.season_no }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
+                                <div><a href="/unsubscribe/series_{{ series.series_id }}_{{ series.season_no }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> Unsubscribe</a></div>
+                                <div><a href="/unsubscribe/series_{{ series.series_id }}_{{ series.season_no }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
                             </div>
                         {% endif %}
 
@@ -86,7 +86,7 @@
 								<li class="active"><a href="#overview">Overview</a></li>
 								<li><a href="#episodes">  Episodes </a></li>
                                 <li><a href="#reviews">  Reviews </a></li>
-								<li><a href="http://127.0.0.1:8000/genre/{{ series.genre }}"> Related SHOWS</a></li>
+								<li><a href="/genre/{{ series.genre }}"> Related SHOWS</a></li>
 							</ul>
 						    <div class="tab-content">
 						        <div id="overview" class="tab active">
@@ -103,7 +103,7 @@
 
 													<div class="cast-left">
 
-														<a href="http://127.0.0.1:8000/movies/{{ episode.episode_id}}">{{ episode.episode_title }}</a>
+														<a href="/movies/{{ episode.episode_id}}">{{ episode.episode_title }}</a>
 
 													</div>
                                                    <p> {{ episode.episode_year }}</p>
@@ -200,7 +200,7 @@
 						            		</div>
 						            		<div class="sb-it">
 						            			<h6>Genre:</h6>
-						            			<p><a href="http://127.0.0.1:8000/genre/{{ series.genre }}">{{ series.genre }}</a>
+						            			<p><a href="/genre/{{ series.genre }}">{{ series.genre }}</a>
 						            		</div>
 						            		<div class="sb-it">
 						            			<h6>Release Year:</h6>
@@ -823,6 +823,11 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="../../static/home/home_page/js/production.min.js"></script>
 
-
+<script>
+$('.reviewer').on("click", function(evt) {
+         var id = $(this).attr('id');
+        window.location = "/profile/"+id;
+    });
+</script>
 
 {% endblock %}

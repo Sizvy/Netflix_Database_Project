@@ -78,7 +78,7 @@ def stream_video(request, file_name):
         else:
             raise Http404
     else:
-        return redirect("http://127.0.0.1:8000/user/login")
+        return redirect("/user/login")
 
 
 def pushintoDhistory(show_id,user_id):
@@ -115,33 +115,6 @@ def pushintoDhistory(show_id,user_id):
 
 
 
-# def download_video(request,file_name):
-#     if request.session.get('is_logged_in'):
-#         user_id = request.session.get('user_ID', -1)
-#         print("here in download")
-#         file_name = file_name.split("-")
-#         print(file_name[0])
-#         print(file_name[1])
-#         show_id = file_name[1]
-#         path = "E:\\"+file_name[0]
-#         size = os.path.getsize(path)
-#
-#         content_type, encoding = mimetypes.guess_type(path)
-#         content_type = content_type or 'video/mp4'
-#
-#         print(content_type)
-#         if os.path.exists(path):
-#             pushintoDhistory(show_id,user_id)
-#             with open(path,'rb') as fh:
-#                 print("got the movie")
-#                 response = HttpResponse(fh.read(), content_type = content_type)
-#                 response['Content-Disposition'] = "attachment; filename=%s" % file_name[0]
-#                 response['Content-Length'] = str(size)
-#
-#                 return response
-#         raise Http404
-#     else:
-#         return redirect("http://127.0.0.1:8000/user/login")
 
 
 def download_video(request,file_name):
@@ -169,4 +142,4 @@ def download_video(request,file_name):
         else:
             raise Http404
     else:
-        return redirect("http://127.0.0.1:8000/user/login")
+        return redirect("/user/login")

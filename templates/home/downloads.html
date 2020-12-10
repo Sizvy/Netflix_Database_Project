@@ -24,7 +24,7 @@
 {% if count == "0" %}
 	<h1>{{msg}}</h1>
 	<br><br>
-		<a href="http://127.0.0.1:8000/home/subscribed_show/"><h1>Wanna Download??</h1></a>
+		<a href="/home/subscribed_show/"><h1>Wanna Download??</h1></a>
 {% else %}
 	<h1><span class="blue"></span><span class="blue"></span></h1>
 	<br>
@@ -40,7 +40,7 @@
 		<tbody>
 			{% for show in show_list %}
 			<tr>
-				<td><a href="http://127.0.0.1:8000/movies/{{show.show_id}}">{{show.show_title}}</a></td>
+				<td><a href="/movies/{{show.show_id}}">{{show.show_title}}</a></td>
 				<td>{{show.show_genre}}</td>
 				<td>{{show.show_urating}}</td>
 				<td>{{show.dtime}}</td>

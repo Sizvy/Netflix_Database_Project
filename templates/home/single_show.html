@@ -42,30 +42,30 @@
 
                         {% if show.is_sub == 0 and show.is_series == 0%}
 						<div class="btn-transform transform-vertical">
-							<div><a href="http://127.0.0.1:8000/subscribe/show_{{ show.show_id }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> SUBSCRIBE</a></div>
-							<div><a href="http://127.0.0.1:8000/subscribe/show_{{ show.show_id }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
+							<div><a href="/subscribe/show_{{ show.show_id }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> SUBSCRIBE</a></div>
+							<div><a href="/subscribe/show_{{ show.show_id }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
 						</div>
                         {% elif show.is_sub == 1 %}
                         <div class="btn-transform transform-vertical red">
-							<div><a href="http://127.0.0.1:8000/stream/stream_shows/{{ show.file_name }}/" class="item item-1 redbtn"> <i class="ion-play"></i> Stream</a></div>
-                            <div><a href="http://127.0.0.1:8000/stream/stream_shows/{{ show.file_name }}/" class="item item-2 redbtn fancybox-media hvr-grow"><i class="ion-play"></i></a></div>
+							<div><a href="/stream/stream_shows/{{ show.file_name }}/" class="item item-1 redbtn"> <i class="ion-play"></i> Stream</a></div>
+                            <div><a href="/stream/stream_shows/{{ show.file_name }}/" class="item item-2 redbtn fancybox-media hvr-grow"><i class="ion-play"></i></a></div>
 						</div>
 
                         <div class="btn-transform transform-vertical red">
-							<div><a href="http://127.0.0.1:8000/stream/download_shows/{{ show.file_name }}-{{ show.show_id }}/" class="item item-1 redbtn"> <i class="ion-play"></i> Download</a></div>
-							<div><a href="http://127.0.0.1:8000/stream/download_shows/{{ show.file_name }}-{{ show.show_id }}/" class="item item-2 redbtn fancybox-media hvr-grow"><i class="ion-play"></i></a></div>
+							<div><a href="/stream/download_shows/{{ show.file_name }}-{{ show.show_id }}/" class="item item-1 redbtn"> <i class="ion-play"></i> Download</a></div>
+							<div><a href="/stream/download_shows/{{ show.file_name }}-{{ show.show_id }}/" class="item item-2 redbtn fancybox-media hvr-grow"><i class="ion-play"></i></a></div>
 						</div>
                             {%if show.is_series == 0 %}
                                 <div class="btn-transform transform-vertical">
-                                    <div><a href="http://127.0.0.1:8000/unsubscribe/show_{{ show.show_id }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> UNSUBSCRIBE</a></div>
-                                    <div><a href="http://127.0.0.1:8000/unsubscribe/show_{{ show.show_id }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
+                                    <div><a href="/unsubscribe/show_{{ show.show_id }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> UNSUBSCRIBE</a></div>
+                                    <div><a href="/unsubscribe/show_{{ show.show_id }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
                                 </div>
                             {% endif %}
                         {% endif %}
                         {% if show.is_series == 1 %}
                              <div class="btn-transform transform-vertical">
-                                    <div><a href="http://127.0.0.1:8000/series/{{ show.series_id }}_{{ show.season_no }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> Go to Series</a></div>
-                                    <div><a href="http://127.0.0.1:8000/series/{{ show.series_id }}_{{ show.season_no }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
+                                    <div><a href="/{{ show.series_id }}_{{ show.season_no }}" class="item item-1 yellowbtn"> <i class="ion-card"></i> Go to Series</a></div>
+                                    <div><a href="/series/{{ show.series_id }}_{{ show.season_no }}" class="item item-2 yellowbtn"><i class="ion-card"></i></a></div>
                              </div>
                     ````{% endif %}
 					</div>
@@ -111,7 +111,7 @@
 								<li class="active"><a href="#overview">Overview</a></li>
 								<li><a href="#reviews"> Reviews</a></li>
 								<li><a href="#cast_and_crews">  Cast & Crew </a></li>
-								<li><a href="http://127.0.0.1:8000/genre/{{ show.show_genre }}"> Related Shows</a></li>
+								<li><a href="/genre/{{ show.show_genre }}"> Related Shows</a></li>
 							</ul>
 						    <div class="tab-content">
 						        <div id="overview" class="tab active">
@@ -225,7 +225,7 @@
 						            		</div>
 						            		<div class="sb-it">
 						            			<h6>Genre:</h6>
-						            			<p><a href="http://127.0.0.1:8000/genre/{{ show.show_genre }}">{{ show.show_genre }}</a>
+						            			<p><a href="/genre/{{ show.show_genre }}">{{ show.show_genre }}</a>
 						            		</div>
 						            		<div class="sb-it">
 						            			<h6>Release Year:</h6>
@@ -808,7 +808,7 @@ input {
 
     $('.reviewer').on("click", function(evt) {
          var id = $(this).attr('id');
-        window.location = "http://127.0.0.1:8000/profile/"+id;
+        window.location = "/profile/"+id;
     });
 });
 
